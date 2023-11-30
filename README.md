@@ -2009,3 +2009,9 @@
 	alex@/tmp/binary_trees$
 	```
 
+35. Big O #AVL Tree
+	- What are the average time complexities of those operations on an AVL Tree (one answer per line):
+		- Inserting the value `n`
+		- Removing the node with the value `n`
+		- Searching for a node in an AVL tree of size n
+
