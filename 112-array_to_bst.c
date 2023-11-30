@@ -21,7 +21,7 @@ bst_t *array_to_bst(int *array, size_t size)
 	{
 		for (b = 0; b < a; b++)
 		{
-			if (array[b]== array[a])
+			if (array[b] == array[a])
 				break;
 		}
 		if (b == a)
