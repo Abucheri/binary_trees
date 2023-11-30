@@ -13,11 +13,23 @@
 
 avl_t *array_to_avl(int *array, size_t size)
 {
-	avl_t *root = NULL;
+	avl_t *tree = NULL;
+	size_t a, b;
 
-	if (!array || size == 0)
+	if (array == NULL)
 		return (NULL);
-	for (size_t i = 0; i < size; i++)
-		avl_insert(&root, array[i]);
-	return (root);
+	for (a = 0; a < size; a++)
+	{
+		for (b = 0; b < a; b++)
+		{
+			if (array[b] == array[a])
+				break;
+		}
+		if (b == a)
+		{
+			if (avl_insert(&tree, array[a]) == NULL)
+				return (NULL);
+		}
+	}
+	return (tree);
 }
