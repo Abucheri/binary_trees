@@ -60,8 +60,6 @@ heap_t *max_heap(heap_t *tree)
 		right_max = max_heap(tree->right);
 		if (right_max->n > current->n)
 			current = right_max;
-		else
-			current = tree;
 	}
 	return (current);
 }
@@ -83,7 +81,7 @@ int heap_extract(heap_t **root)
 	value = (*root)->n;
 	if (!(*root)->left)
 	{
-		value = (*root)->n;
+		/* value = (*root)->n; */
 		free(*root);
 		*root = NULL;
 		return (value);
