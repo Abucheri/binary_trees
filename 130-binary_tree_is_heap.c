@@ -1,104 +1,84 @@
 #include "binary_trees.h"
 #include <stddef.h>
 
-size_t binary_tree_height(const binary_tree_t *tree);
-int binary_tree_balance(const binary_tree_t *tree);
-int tree_is_perfect(const binary_tree_t *tree);
-int binary_tree_is_perfect(const binary_tree_t *tree);
+size_t binary_tree_size(const binary_tree_t *tree);
+int tree_is_complete(const binary_tree_t *tree, int index, int nnodes);
+int binary_tree_is_complete(const binary_tree_t *tree);
+int parent_c(const binary_tree_t *tree);
 
 /**
- * binary_tree_height - Measures height of a binary tree
+ * binary_tree_size - Measures size of binary tree
  *
- * @tree: Tree to traverse
+ * @tree: The root
  *
- * Return: Height output
+ * Return: Size of the tree,
+ * else, 0 for NULL
  */
 
-size_t binary_tree_height(const binary_tree_t *tree)
+size_t binary_tree_size(const binary_tree_t *tree)
 {
-	size_t left_child = 0;
-	size_t right_child = 0;
-
 	if (tree == NULL)
-	{
 		return (0);
-	}
-	if (tree->left == NULL && tree->right == NULL)
-		return (tree->parent != NULL);
-	if (tree)
-	{
-		left_child = tree->left ? 1 +
-			binary_tree_height(tree->left) : 0;
-		right_child = tree->right ? 1 +
-			binary_tree_height(tree->right) : 0;
-	}
-	return ((left_child > right_child) ?
-			left_child : right_child);
+	return (binary_tree_size(tree->left) +
+			binary_tree_size(tree->right) + 1);
 }
 
 /**
- * binary_tree_balance - Measures the balance factor
+ * tree_is_complete - Checks if tree is complete
  *
- * @tree: Tree to traverse
+ * @tree: Pointer to the root
+ * @index: Index of node
+ * @nnodes: No. of nodes
  *
- * Return: The factor
+ * Return: 1, for tree completion,
+ * else, 0
  */
 
-int binary_tree_balance(const binary_tree_t *tree)
+int tree_is_complete(const binary_tree_t *tree, int index, int nnodes)
 {
-	int right = 0, left = 0, all = 0;
-
-	if (tree)
-	{
-		left = ((int)binary_tree_height(tree->left));
-		right = ((int)binary_tree_height(tree->right));
-		all = left - right;
-	}
-	return (all);
-}
-
-/**
- * tree_is_perfect - Checks if tree is perfect
- *
- * @tree: The binary tree
- *
- * Return: 0 if is not perfect
- */
-
-int tree_is_perfect(const binary_tree_t *tree)
-{
-	int left = 0, right = 0;
-
-	if (tree->left && tree->right)
-	{
-		left = 1 + tree_is_perfect(tree->left);
-		right = 1 + tree_is_perfect(tree->right);
-		if (right == left && right != 0 && left != 0)
-			return (right);
-		return (0);
-	} else if (!tree->left && !tree->right)
+	if (tree == NULL)
 		return (1);
-	return (0);
+	if (index >= nnodes)
+		return (0);
+	return (tree_is_complete(tree->left, (2 * index) + 1, nnodes) &&
+		tree_is_complete(tree->right, (2 * index) + 2, nnodes));
 }
 
 /**
- * binary_tree_is_perfect - Checks if a tree is perfect
+ * binary_tree_is_complete - Calls the complete checker
  *
- * @tree: Tree to check
+ * @tree: The root
  *
- * Return: 1 if perfect
+ * Return: 1 if complete,
+ * else, 0
  */
 
-int binary_tree_is_perfect(const binary_tree_t *tree)
+int binary_tree_is_complete(const binary_tree_t *tree)
 {
-	int final_output = 0;
+	size_t nnodes;
 
 	if (tree == NULL)
 		return (0);
-	final_output = tree_is_perfect(tree);
-	if (final_output != 0)
+	nnodes = binary_tree_size(tree);
+	return (tree_is_complete(tree, 0, nnodes));
+}
+
+/**
+ * parent_c - Checks if parent has higher val than its child
+ *
+ * @tree: Pointer to the node
+ *
+ * Return: 1 parent val is higher,
+ * else, 0
+ */
+
+int parent_c(const binary_tree_t *tree)
+{
+	if (tree == NULL)
 		return (1);
-	return (0);
+	if (tree->n > tree->parent->n)
+		return (0);
+	return (parent_c(tree->left) && parent_c(tree->right));
 }
 
 /**
@@ -111,26 +91,7 @@ int binary_tree_is_perfect(const binary_tree_t *tree)
 
 int binary_tree_is_heap(const binary_tree_t *tree)
 {
-	int value;
-
-	if (tree == NULL)
+	if (!binary_tree_is_complete(tree))
 		return (0);
-	if (tree->left && tree->left->n > tree->n)
-		return (0);
-	if (tree->right && tree->right->n > tree->n)
-		return (0);
-	if (binary_tree_is_perfect(tree))
-		return (1);
-	value = binary_tree_balance(tree);
-	if (value == 0)
-	{
-		return (binary_tree_is_perfect(tree->left) &&
-				binary_tree_is_heap(tree->right));
-	}
-	if (value == 1)
-	{
-		return (binary_tree_is_heap(tree->left) &&
-				binary_tree_is_perfect(tree->right));
-	}
-	return (0);
+	return (parent_c(tree->left) && parent_c(tree->right));
 }
