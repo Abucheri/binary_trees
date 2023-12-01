@@ -2,62 +2,68 @@
 #include <stddef.h>
 #include <stdlib.h>
 
-size_t _heap_size(const heap_t *root);
-static void swap_nodes(heap_t *a, heap_t *b);
-static void heapify_down(heap_t *root);
+void recursive_extract(heap_t *tree);
+heap_t *max_heap(heap_t *tree);
 
 /**
- * _heap_size - Computes the size of the heap
+ * recursive_extract - Recursively extracts the maximum node
  *
- * @root: Pointer to the root of the heap
- *
- * Return: Size of the heap
+ * @tree: Pointer to the root
  */
 
-size_t _heap_size(const heap_t *root)
+void recursive_extract(heap_t *tree)
 {
-	if (root == NULL)
-		return (0);
-	return (_heap_size(root->left) + _heap_size(root->right) + 1);
-}
+	heap_t *left_max, *right_max = NULL;
 
-/**
- * swap_nodes - Swaps two nodes in a binary tree
- *
- * @a: First node
- * @b: Second node
- */
-
-void swap_nodes(heap_t *a, heap_t *b)
-{
-	int temp;
-
-	temp = a->n;
-	a->n = b->n;
-	b->n = temp;
-}
-
-/**
- * heapify_down - Heapifies the heap downwards
- *
- * @root: Pointer to the root of the heap
- */
-
-void heapify_down(heap_t *root)
-{
-	heap_t *largest = root;
-	heap_t *left = root->left;
-	heap_t *right = root->right;
-
-	if (left && left->n > largest->n)
-		largest = left;
-	if (right && right->n > largest->n)
-		largest = right;
-	if (largest != root)
+	if (!tree->left)
+		return;
+	left_max = max_heap((tree)->left);
+	if (tree->right)
+		right_max = max_heap(tree->right);
+	if (right_max && right_max->n > left_max->n)
+		left_max = right_max;
+	tree->n = left_max->n;
+	if (!left_max->left)
 	{
-		swap_nodes(root, largest);
-		heapify_down(largest);
+		if (left_max->parent && left_max->parent->left == left_max)
+			left_max->parent->left = NULL;
+		if (left_max->parent && left_max->parent->right == left_max)
+			left_max->parent->right = NULL;
+		free(left_max);
+	} else
+	{
+		recursive_extract(left_max);
 	}
+}
+
+/**
+ * max_heap - Finds the max node
+ *
+ * @tree: Pointer to the root
+ *
+ * Return: Node with max val
+ */
+
+heap_t *max_heap(heap_t *tree)
+{
+	heap_t *current, *left_max, *right_max;
+
+	if (!tree->left)
+		return (tree);
+	left_max = max_heap(tree->left);
+	if (left_max->n > tree->n)
+		current = left_max;
+	else
+		current = tree;
+	if (tree->right)
+	{
+		right_max = max_heap(tree->right);
+		if (right_max->n > current->n)
+			current = right_max;
+		else
+			current = tree;
+	}
+	return (current);
 }
 
 /**
@@ -71,33 +77,17 @@ void heapify_down(heap_t *root)
 int heap_extract(heap_t **root)
 {
 	int value;
-	heap_t *last_node, *temp_root;
 
-	if (root == NULL || *root == NULL)
+	if (!*root)
 		return (0);
-	temp_root = *root;
-	value = temp_root->n;
-	last_node = temp_root;
-	while (last_node->left != NULL || last_node->right != NULL)
+	value = (*root)->n;
+	if (!(*root)->left)
 	{
-		if (last_node->right == NULL || last_node->left->n >
-				last_node->right->n)
-			last_node = last_node->left;
-		else
-			last_node = last_node->right;
-	}
-	if (last_node->parent != NULL)
-	{
-		if (last_node->parent->left == last_node)
-			last_node->parent->left = NULL;
-		else
-			last_node->parent->right = NULL;
-	} else
-	{
+		value = (*root)->n;
+		free(*root);
 		*root = NULL;
+		return (value);
 	}
-	temp_root->n = last_node->n;
-	free(last_node);
-	heapify_down(temp_root);
+	recursive_extract(*root);
 	return (value);
 }
