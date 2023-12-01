@@ -13,21 +13,21 @@
 
 int *heap_to_sorted_array(heap_t *heap, size_t *size)
 {
-	int *sorted_array;
-	size_t i, heap_size;
+	int *array;
+	int extract, i = 0;
+	size_t heap_size;
 
-	if (!heap || !size)
+	if (!heap)
 		return (NULL);
-
 	heap_size = binary_tree_size(heap);
-	sorted_array = malloc(sizeof(int) * heap_size);
-	if (!sorted_array)
-		return (NULL);
-	for (i = 0; i < heap_size; i++)
-	{
-		sorted_array[i] = heap->n;
-		heap_extract(&heap);
-	}
 	*size = heap_size;
-	return (sorted_array);
+	array = malloc(heap_size * sizeof(int));
+	if (!array)
+		return (NULL);
+	while (heap)
+	{
+		extract = heap_extract(&heap);
+		array[i++] = extract;
+	}
+	return (array);
 }
